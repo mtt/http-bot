@@ -22,5 +22,6 @@ HTTPBot.connect("https://yoursite.com") do |connection|
   #puts connection.redirected_to
   connection.get "secret_stuff/show"
   connection.post "image_uploader",{:image => File.open('image.jpg','rb')},:multipart => true
+  connection.post "person/create", :person => {:name => "Tom Sawyer", :email => "toms@gmail.com"}
   #puts connection.body
 end

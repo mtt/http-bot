@@ -98,11 +98,11 @@ module HTTPBot
         when Array
           v.inject([]) do |acc,ary_val| 
             acc << CGI::escape(k.to_s + "[]") + "=#{CGI::escape(ary_val.to_s)}" 
-	  end.join(sep)
+          end.join(sep)
         when Hash
           v.inject([]) do |acc,(hash_key,hash_val)|
             acc << CGI::escape(k.to_s + "[#{hash_key}]") + "=#{CGI::escape(hash_val.to_s)}"
-	  end.join(sep)
+          end.join(sep)
         end 
       end.join(sep)
     end
