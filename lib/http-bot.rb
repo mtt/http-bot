@@ -44,9 +44,9 @@ module HTTPBot
       
       res = @http.start do |http| 
         @response = response = http.request(req)
-	set_response_headers(response)
-	set_cookies(response)
-	yield(http,response) if block_given?
+        set_response_headers(response)
+        set_cookies(response)
+        yield(http,response) if block_given?
       end
     end
     
