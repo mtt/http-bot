@@ -81,10 +81,8 @@ module HTTPBot
         mp = Multipart::MultipartPost.new
         query, headers = mp.prepare_query(form_data)
         req.body = query
-	req.delete("content-type")
-	headers.each do |key,val|
-	  req.add_field(key,val)
-	end
+        req.delete("content-type")
+        headers.each { |key,val| req.add_field(key,val) }
       else
         req.set_form_data(form_data)
       end
