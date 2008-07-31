@@ -1,0 +1,25 @@
+= HTTPBot - Browse/Login/Scrape web pages (still new) 
+
+#Added a login method
+module MyHelpers
+  def login
+    post("login",:login =>'MyUsername',:password =>'secret')
+  end
+end
+
+require 'http-bot'
+
+HTTPBot::Connection.class_eval do
+  include MyHelpers
+end
+
+
+#Focus on one site to view
+HTTPBot.connect("https://yoursite.com") do |connection|
+  connection.login
+  #puts connection.response_headers
+  #puts connection.response.body
+  #puts connection.redirected_to
+  connection.get "secret_stuff/show"
+  #puts connection.body
+end
