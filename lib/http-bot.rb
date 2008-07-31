@@ -26,8 +26,9 @@ module HTTPBot
     end
     
     #Do GET first to setup cookies
+    #Cookies are set on every request
     def fetch_cookies
-      get { |http, response| set_cookies(response) }
+      get
     end
     
     def request(url,type='Get',form_data={})
@@ -44,6 +45,7 @@ module HTTPBot
       res = @http.start do |http| 
         @response = response = http.request(req)
 	set_response_headers(response)
+	set_cookies(response)
 	yield(http,response) if block_given?
       end
     end
@@ -70,6 +72,10 @@ module HTTPBot
         @redirected_to = val if key =~ /location/i
       end
     end
+    
+    def body
+      @response.nil? ? nil : @response.body
+    end 
     
    end
 
