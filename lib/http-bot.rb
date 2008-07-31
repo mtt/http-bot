@@ -1,6 +1,7 @@
 require 'net/http'
 require 'net/https'
 
+
 module HTTPBot
 
   #Use this to login and access one particular site
@@ -17,6 +18,7 @@ module HTTPBot
       @cookies = []
       @url  = URI.parse(@host)
       @http = Net::HTTP.new(@url.host, @url.port)
+      @http.set_debug_output $stdout
       @http.use_ssl = @host =~ /^https/i ? true : false
       @response_header = {}
       @response = nil
@@ -31,7 +33,7 @@ module HTTPBot
       get
     end
     
-    def request(url,type='Get',form_data={})
+    def request(url,type='Get',form_data={},options={})
       url = "/#{url}" unless url =~ /^\//
       @url  = URI.parse(@host)
       @url.path = url
@@ -40,8 +42,9 @@ module HTTPBot
       
       req.add_field('User-Agent',@user_agent)
       @cookies.each { |cookie| req.add_field('Cookie',cookie) }
-      req.set_form_data(form_data)
       
+      set_form_data(req,form_data,options)
+    
       res = @http.start do |http| 
         @response = response = http.request(req)
         set_response_headers(response)
@@ -50,12 +53,12 @@ module HTTPBot
       end
     end
     
-    def get(url='',form_data={},&block)
-      request(url,'Get',form_data,&block)
+    def get(url='',form_data={},options={},&block)
+      request(url,'Get',form_data,options,&block)
     end
     
-    def post(url='',form_data={},&block)
-      request(url,'Post',form_data,&block)
+    def post(url='',form_data={},options={},&block)
+      request(url,'Post',form_data,options,&block)
     end
     
     def set_cookies(response)
@@ -73,6 +76,20 @@ module HTTPBot
       end
     end
     
+    def set_form_data(req,form_data={},options={})
+      if options[:multipart]
+        mp = Multipart::MultipartPost.new
+        query, headers = mp.prepare_query(form_data)
+        req.body = query
+	req.delete("content-type")
+	headers.each do |key,val|
+	  req.add_field(key,val)
+	end
+      else
+        req.set_form_data(form_data)
+      end
+    end
+     
     def body
       @response.nil? ? nil : @response.body
     end 
