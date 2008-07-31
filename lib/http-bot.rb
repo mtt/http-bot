@@ -26,7 +26,10 @@ module HTTPBot
       get { |http, response| set_cookies(response) }
     end
     
-    def request(type='Get')
+    def request(url,type='Get')
+      url = "/#{url}" unless url =~ /^\//
+      @url  = URI.parse(@host)
+      @url.path = url
       klass = eval("Net::HTTP::#{type}")
       req = klass.new(@url.path)
       req.add_field('User-Agent',@user_agent)
@@ -36,12 +39,12 @@ module HTTPBot
       end
     end
     
-    def get(&block)
-      request('Get',&block)
+    def get(url='',&block)
+      request(url,'Get',&block)
     end
     
-    def post(&block)
-      request('Post',&block)
+    def post(url='',&block)
+      request(url,'Post',&block)
     end
     
     def set_cookies(response)
