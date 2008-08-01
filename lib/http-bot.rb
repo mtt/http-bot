@@ -84,43 +84,29 @@ module HTTPBot
         req.delete("content-type")
         headers.each { |key,val| req.add_field(key,val) }
       else
-				req.body = stringify_params(form_data)
+        req.body = hash_to_params(form_data)
         req.content_type = 'application/x-www-form-urlencoded'
       end
     end
 		
-    def stringify_params(form_data)
-      sep = '&'
-      form_data.map do |k,v|
-        case v
-        when String 
-          "#{CGI::escape(k.to_s)}=#{CGI::escape(v.to_s)}"
-        when Array
-          v.inject([]) do |acc,ary_val| 
-            acc << CGI::escape(k.to_s + "[]") + "=#{CGI::escape(ary_val.to_s)}" 
-          end.join(sep)
-        when Hash
-          v.inject([]) do |acc,(hash_key,hash_val)|
-            acc << CGI::escape(k.to_s + "[#{hash_key}]") + "=#{CGI::escape(hash_val.to_s)}"
-          end.join(sep)
-        end 
-      end.join(sep)
-    end
-
     def hash_to_params(hash,walk='')
       if hash.is_a?(Hash)
-        hash.inject([]) do |acc,(k,v)|
+        hash.map do |k,v|
           walk1 = walk.empty? ? "#{k}" : "#{walk}[#{k}]" 
-          acc << hash_to_params(v,walk1) 
+          hash_to_params(v,walk1) 
         end.join('&')
       elsif hash.is_a?(Array)
-        hash.inject([]) do |acc,v|
+        hash.map do |v|
           walk1 = "#{walk}[]"
-          acc << hash_to_params(v,walk1)
+          hash_to_params(v,walk1)
         end.join('&')
       else
-        return "#{walk}=#{hash}"
+        return "#{e(walk)}=#{e(hash)}"
       end
+    end
+
+    def e(val)
+      CGI::escape(val.to_s)
     end
 
 	
