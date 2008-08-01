@@ -106,6 +106,23 @@ module HTTPBot
         end 
       end.join(sep)
     end
+
+    def hash_to_params(hash,walk='')
+      if hash.is_a?(Hash)
+        hash.inject([]) do |acc,(k,v)|
+          walk1 = walk.empty? ? "#{k}" : "#{walk}[#{k}]" 
+          acc << hash_to_params(v,walk1) 
+        end.join('&')
+      elsif hash.is_a?(Array)
+        hash.inject([]) do |acc,v|
+          walk1 = "#{walk}[]"
+          acc << hash_to_params(v,walk1)
+        end.join('&')
+      else
+        return "#{walk}=#{hash}"
+      end
+    end
+
 	
     def body
       @response.nil? ? nil : @response.body
